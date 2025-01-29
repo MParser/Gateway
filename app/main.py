@@ -1,5 +1,4 @@
-from fastapi import FastAPI, responses
-from loguru import logger
+from fastapi import FastAPI
 from app.core.logger import log
 from app.core.events import event_manager
 from app.core.config import config
