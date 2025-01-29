@@ -1,0 +1,25 @@
+{
+    "CONFIG_OVERRIDE": true,
+    "app": {
+        "name": "Gateway",
+        "id": "000380a98e13d669",
+        "version": "1.0.0",
+        "description": "MParser Gateway",
+        "host": "0.0.0.0",
+        "port": 10001,
+        "reload": true,
+        "main": "app.main"
+    },
+    "log": {
+        "level": "info",
+        "console": true,
+        "file": {
+            "path": "logs/app_{time}.log",
+            "max_size": "10MB",
+            "backup_count": 5
+        }
+    },
+    "nds": {
+        "pool_size": 5
+    }
+}

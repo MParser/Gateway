@@ -1,0 +1,29 @@
+这是一个基于FastAPI的后端服务框架,可以用于快速搭建RESTful API服务。
+
+## 项目结构,需要遵循如下项目结构进行开发
+
+project/
+├── app/                    # 应用主目录
+│   ├── api/               # API相关
+│   │   ├── deps.py       # 依赖注入
+│   │   ├── v1/          # API版本1
+│   │   │   ├── api.py   # 路由聚合
+│   │   │   └── endpoints/ # API端点
+│   │   └── v2/          # API版本2
+│   ├── core/            # 核心功能
+│   │   ├── config.py    # 配置管理
+│   │   ├── security.py  # 安全相关
+│   │   ├── logger.py    # 日志管理
+│   │   └── errors.py    # 错误处理
+│   ├── services/        # 业务逻辑层
+│   ├── crud/           # 数据库操作层
+│   ├── models/         # 数据模型
+│   ├── schemas/        # Pydantic模型
+│   └── utils/          # 工具函数
+├── tests/              # 测试目录
+├── .env               # 环境变量
+├── config.json        # 配置文件
+├── run.py            # 主启动文件
+├── requirements.txt   # 项目依赖
+└── README.md         # 项目文档
+
