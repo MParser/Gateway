@@ -1,5 +1,11 @@
 {
     "CONFIG_OVERRIDE": true,
+    "server": {
+        "protocol": "http",
+        "host": "127.0.0.1",
+        "port": 9002,
+        "timeout": 3600
+    },
     "app": {
         "name": "Gateway",
         "id": "000380a98e13d669",
