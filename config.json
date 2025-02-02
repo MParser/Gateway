@@ -8,7 +8,7 @@
     },
     "app": {
         "name": "Gateway",
-        "id": "000380a98e13d669",
+        "id": "",
         "version": "1.0.0",
         "description": "MParser Gateway",
         "host": "0.0.0.0",
