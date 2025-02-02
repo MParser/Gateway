@@ -30,8 +30,6 @@ USER appuser
 # 创建日志目录
 RUN mkdir -p logs
 
-# 暴露端口
-EXPOSE 8000
 
 # 启动命令
 CMD ["python", "run.py"]
