@@ -24,10 +24,12 @@ async def lifespan(_app: FastAPI):
     应用生命周期管理
     处理应用启动和关闭时的事件
     """
-    app_id = f"{config.get("app.name")}-{uuid.uuid5(uuid.NAMESPACE_DNS, str(uuid.getnode()))}"
-    app_id = int(hashlib.sha256(str(app_id).encode()).hexdigest(), 26) % 10**16
-    app_id = f"{app_id:016x}"
-    config.set("app.id", app_id)
+    if len(config.get("app.id")) < 5:
+        app_id = f"{config.get("app.name")}-{uuid.uuid5(uuid.NAMESPACE_DNS, str(uuid.getnode()))}"
+        app_id = int(hashlib.sha256(str(app_id).encode()).hexdigest(), 26) % 10**16
+        app_id = f"{app_id:016x}"
+        config.set("app.id", app_id)
+        
     try:
         await event_manager.run_startup(_app)
         yield

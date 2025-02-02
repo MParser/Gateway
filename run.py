@@ -1,7 +1,9 @@
+import os
 import uvicorn
 from app.core.config import config
 
 if __name__ == "__main__":
+    os.system('cls' if os.name == 'nt' else 'clear') 
     uvicorn.run(
         "app.init:app",
         host=config.get("app.host", "0.0.0.0"),
