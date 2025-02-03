@@ -43,8 +43,23 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 log.debug(f"收到消息[{client_id}]: {message}")
                 
                 # 处理消息
-                response = await GatewayController.handle_websocket_message(client_id, message)
-                await ws_manage.send_response(client_id, response)
+                try:
+                    response = await GatewayController.handle_websocket_message(client_id, message)
+                    if not isinstance(response, WS_RESPONSE):
+                        log.error(f"无效的响应对象[{client_id}]: {response}")
+                        response = WS_RESPONSE(
+                            type=WSMessageType.ERROR,
+                            code=500,
+                            message="服务器内部错误：无效的响应对象"
+                        )
+                    await ws_manage.send_response(client_id, response)
+                except Exception as e:
+                    log.error(f"处理消息失败[{client_id}]: {str(e)}")
+                    await ws_manage.send_response(client_id, WS_RESPONSE(
+                        type=WSMessageType.ERROR,
+                        code=500,
+                        message=f"处理消息失败: {str(e)}"
+                    ))
                 
             except json.JSONDecodeError:
                 await ws_manage.send_response(client_id, WS_RESPONSE(

@@ -130,6 +130,8 @@ class _ConfigManager:
         if self.config_override:
             # 当CONFIG_OVERRIDE为true时，只修改config.json
             self._json_config = self._merge_configs(self._json_config, nested_config)
+            # 更新内存中的配置
+            self._config = self._merge_configs(self._config, nested_config)
             if save:
                 self._save_json_config()
         else:
@@ -148,6 +150,9 @@ class _ConfigManager:
             
             # 3. 修改config.json
             self._json_config = self._merge_configs(self._json_config, nested_config)
+            
+            # 4. 更新内存中的配置
+            self._config = self._merge_configs(self._config, nested_config)
             
             if save:
                 self._save_json_config()

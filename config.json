@@ -2,30 +2,27 @@
     "CONFIG_OVERRIDE": true,
     "server": {
         "protocol": "http",
-        "host": "127.0.0.1",
-        "port": 9002,
+        "host": "192.127.121.30",
+        "port": 1902,
         "timeout": 3600
     },
     "app": {
         "name": "Gateway",
-        "id": "",
+        "id": "000592df07814d8c",
         "version": "1.0.0",
         "description": "MParser Gateway",
         "host": "0.0.0.0",
-        "port": 10001,
+        "port": 10101,
         "reload": true,
         "main": "app.main"
     },
     "log": {
-        "level": "debug",
+        "level": "info",
         "console": true,
         "file": {
             "path": "logs/app_{time}.log",
             "max_size": "10MB",
             "backup_count": 5
         }
-    },
-    "nds": {
-        "pool_size": 5
     }
 }

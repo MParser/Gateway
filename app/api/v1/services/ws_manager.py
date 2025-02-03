@@ -38,6 +38,13 @@ class ConnectionManager:
             log.debug(f"客户端[{client_id}]已断开")
 
     async def send_response(self, client_id: str, response: WS_RESPONSE) -> bool:
+        """
+        发送WebSocket响应
+        
+        :param client_id: 客户端ID
+        :param response: 响应对象，必须是 WS_RESPONSE 类型
+        :return: 发送是否成功
+        """
         if websocket := self.active_connections.get(client_id):
             try:
                 await websocket.send_json(response.model_dump())
@@ -51,18 +58,16 @@ class ConnectionManager:
             return False
 
         try:
-            # 发送文件标记
-            for marker, is_start in [("start", True), ("end", False)]:
-                if is_start:
-                    # 分块发送数据
-                    for i in range(0, len(data), self.chunk_size):
-                        await websocket.send_bytes(data[i:i + self.chunk_size])
-                
-                await self.send_response(client_id, WS_RESPONSE(
-                    type=WSMessageType.FILE,
-                    data=marker,
-                    request_id=request_id
-                ))
+            response = WS_RESPONSE(type=WSMessageType.FILE, request_id=request_id)
+            response.data = "start"
+            if await self.send_response(client_id, response):
+                for i in range(0, len(data), self.chunk_size):
+                    await websocket.send_bytes(data[i:i + self.chunk_size])
+                response.data = "end"
+                await self.send_response(client_id, response)
+            else:
+                log.error(f"发送文件失败[{client_id}]: 标记符发送失败")
+                return False
             return True
         except Exception as e:
             log.error(f"发送文件失败[{client_id}]: {str(e)}")

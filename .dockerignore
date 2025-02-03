@@ -36,7 +36,6 @@ ENV/
 *.swo
 
 # Logs
-logs/
 *.log
 
 # Environment variables
@@ -66,3 +65,4 @@ config.local.json
 *.bak
 *.tmp
 .hintrc
+/*.tar

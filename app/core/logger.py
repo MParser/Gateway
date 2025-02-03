@@ -16,6 +16,9 @@ log_format = (
     "<level>{message}</level>"
 )
 
+# 设置 asyncssh 日志级别为 WARNING，只显示警告和错误
+logging.getLogger('asyncssh').setLevel(logging.WARNING)
+
 # 添加控制台处理器
 if config.get("log.console", True):
     logger.add(

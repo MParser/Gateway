@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<!--suppress HtmlFormInputWithoutLabel -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+    <title>Log Viewer</title>
+    <link rel="stylesheet" href="/logs/style.css">
+    <script src="/logs/script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <div class="tab-container">
+                <button class="tab active" onclick="switchTab('realtime')" id="realtimeTab">实时日志</button>
+                <button class="tab" onclick="switchTab('history')" id="historyTab">历史日志</button>
+            </div>
+            <div id="realtimeControls" style="display: flex; gap: 8px;">
+                <button class="control-button" onclick="toggleWebSocket()" id="wsSwitch">
+                    断开
+                </button>
+                <button class="control-button" onclick="toggleAutoScroll()" id="scrollButton">
+                    关闭自动滚动
+                </button>
+                <button class="control-button" onclick="clearLogs()" id="clearButton">
+                    清空屏幕🧹
+                </button>
+            </div>
+            <button class="button" onclick="showLogFiles()" id="selectLogButton" style="display: none;">选择日志文件</button>
+            <div class="right-group">
+                <div class="theme-switch" onclick="toggleTheme()" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+                <div id="connectionStatus" class="connection-status disconnected">
+                    <span>未连接</span>
+                </div>
+            </div>
+        </div>
+        <div id="realtimeView">
+            <div class="log-viewer" id="logViewer"></div>
+        </div>
+        <div id="historyView" style="display: none;">
+            <div id="historyLogViewer" class="log-viewer"></div>
+            <div class="pagination-controls" style="display: none;">
+                <button class="page-button" onclick="changePage('first')" id="firstPageBtn">首页</button>
+                <button class="page-button" onclick="changePage('prev')" id="prevPageBtn">上一页</button>
+                <div class="page-info">
+                    第 <input type="number" class="page-input" id="currentPage" min="1" value="1" onchange="goToPage(this.value)"> 页
+                    共 <span id="totalPages">1</span> 页
+                </div>
+                <button class="page-button" onclick="changePage('next')" id="nextPageBtn">下一页</button>
+                <button class="page-button" onclick="changePage('last')" id="lastPageBtn">末页</button>
+                <select class="page-size-select" id="pageSize" onchange="changePageSize()">
+                    <option value="100">100条/页</option>
+                    <option value="200">200条/页</option>
+                    <option value="500">500条/页</option>
+                    <option value="1000">1000条/页</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日志文件选择模态框 -->
+    <div id="logFilesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>选择日志文件</h2>
+            <div class="log-files" id="logFilesList"></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -32,7 +32,6 @@ ENV/
 *.swo
 
 # Logs
-logs/
 *.log
 
 # Environment variables
@@ -51,3 +50,4 @@ htmlcov/
 config.local.json
 *.local.*
 .hintrc
+/*.tar

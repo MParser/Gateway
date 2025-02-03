@@ -1,0 +1,621 @@
+body {
+    margin: 0;
+    padding: 10px;
+    font-family: 'Consolas', monospace;
+    background-color: var(--bg-color);
+    transition: background-color 0.3s;
+    color: var(--text-color);
+}
+
+:root {
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --viewer-bg: #1e1e1e;
+    --background-color: #f5f5f5;
+    --border-color: #ddd;
+}
+
+body.dark-theme {
+    --bg-color: #2d2d2d;
+    --text-color: #fff;
+    --viewer-bg: #1e1e1e;
+    --background-color: #2d2d2d;
+    --border-color: #333;
+}
+
+.container {
+
+    margin: 0 auto;
+    width: 95%; /* 减小容器宽度为原来的三分之二 */
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+    padding-right: 100px;
+}
+
+/* 基础按钮样式 - 仅用于选择日志文件按钮 */
+.button {
+    padding: 4px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    height: 26px;
+    line-height: 18px;
+    transition: all 0.3s;
+}
+
+/* 控制按钮的特殊样式 */
+.control-button {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    height: 26px;
+    line-height: 18px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.control-button:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* 自动滚动按钮 - 开启状态 */
+#scrollButton {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+#scrollButton:hover {
+    background-color: #c8e6c9;
+}
+
+/* 自动滚动按钮 - 关闭状态 */
+#scrollButton.disabled {
+    background-color: #fafafa;
+    color: #757575;
+    border: 1px solid #e0e0e0;
+}
+
+#scrollButton.disabled:hover {
+    background-color: #eeeeee;
+}
+
+/* 清空屏幕按钮 */
+#clearButton {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffe0b2;
+}
+
+#clearButton:hover {
+    background-color: #ffe0b2;
+}
+
+/* 按钮图标样式 */
+.control-button i {
+    font-size: 14px;
+}
+
+.tab-container {
+    display: flex;
+    background: rgba(0,0,0,0.1);
+    padding: 3px;
+    border-radius: 15px;
+    width: fit-content;
+    height: 26px;
+}
+
+.tab-container.dark-theme {
+    background: rgba(0, 0, 0, 0.658);
+}
+
+.tab {
+    padding: 4px 12px;
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    border-radius: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.tab.active {
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+body.dark-theme .tab.active {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.theme-switch {
+    width: 42px;  
+    height: 21px; 
+    background: linear-gradient(to right, #fdb813, #5c4505);
+    border-radius: 10px; 
+    position: relative;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.theme-switch::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #2196F3, #1a237e);
+    opacity: 0;
+    transition: opacity 0.4s;
+    border-radius: 10px;
+}
+
+.theme-switch.dark::after {
+    opacity: 1;
+}
+
+.theme-switch::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(253,184,19,0.2) 0%, rgba(253,184,19,0) 70%);
+    top: -25%;
+    left: -25%;
+    transition: all 0.4s;
+    z-index: 1;
+}
+
+.theme-switch.dark::before {
+    background: radial-gradient(circle, rgba(33,150,243,0.2) 0%, rgba(33,150,243,0) 70%);
+}
+
+.theme-switch-handle {
+    width: 17px;  
+    height: 17px; 
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-switch-handle::before {
+    content: '☀';
+    font-size: 12px; 
+    color: #fdb813;
+    transition: all 0.4s;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.theme-switch:hover .theme-switch-handle {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+
+.theme-switch.dark .theme-switch-handle {
+    transform: translateX(21px); 
+    background-color: #2d3436;
+}
+
+.theme-switch.dark:hover .theme-switch-handle {
+    transform: translateX(21px) scale(1.1);
+}
+
+.theme-switch.dark .theme-switch-handle::before {
+    content: '🌙';
+    color: #5c4505;
+    transform: rotate(360deg);
+}
+
+.right-group {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.connection-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.connection-status::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.connected { 
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+}
+
+.connected::before {
+    background-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.disconnected {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.disconnected::before {
+    background-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* 日志查看器样式 */
+.log-viewer {
+    overflow-y: auto;
+    background: var(--viewer-bg);
+    margin-top: 10px;
+    padding: 10px;
+    font-family: 'Consolas', monospace;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 14px;
+    line-height: 1.5;
+    height: calc(100vh - 90px);
+}
+
+#realtimeLogViewer, #historyLogViewer {
+    height: calc(100vh - 120px);
+}
+
+.log-entry {
+    display: block;
+    margin: 2px 0;
+    font-family: 'Consolas', monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #fff;
+}
+
+/* 日志级别颜色 */
+.INFO { color: #77ce4e; }
+.ERROR { color: #ca3d3d; }
+.WARNING { color: #dbb715; }
+.DEBUG { color: #56a1df; }
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--bg-color);
+    margin: 15% auto;
+    padding: 20px;
+    width: 50%;
+    max-width: 500px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #555;
+}
+
+.log-files {
+    margin: 10px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.log-file-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.log-file-item:hover {
+    background-color: #f5f5f5;
+}
+
+.log-file-item.selected {
+    background-color: #e3f2fd;
+}
+
+/* 夜间模式下的日志文件列表样式 */
+body.dark-theme .log-file-item {
+    border-bottom-color: #2d2d2d;
+}
+
+body.dark-theme .log-file-item:hover {
+    background-color: #2d2d2d;
+}
+
+body.dark-theme .log-file-item.selected {
+    background-color: #1e3a5f;
+}
+
+body.dark-theme .log-file-item .file-info {
+    color: #999;
+}
+
+.log-file-info {
+    flex-grow: 1;
+}
+
+.log-file-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.log-file-details {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.log-file-size {
+    color: #888;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.pagination {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+    padding: 5px;
+    background: var(--bg-color);
+    border-radius: 4px;
+}
+
+.page-button {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-color);
+}
+
+.page-button:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+.page-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    margin: 0 10px;
+}
+
+/* 分页控制样式 */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.page-button {
+    padding: 4px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.page-button:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.page-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.page-input {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.page-size-select {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #fff;
+}
+
+.page-info {
+    color: #666;
+    font-size: 13px;
+}
+
+/* 夜间模式样式 */
+body.dark-theme {
+    background-color: #393939;
+    color: #ffffff;
+}
+
+/* 夜间模式下的分页控件样式 */
+body.dark-theme .page-button,
+body.dark-theme .page-input,
+body.dark-theme .page-size-select {
+    background-color: #2d2d2d;
+    color: #ffffff;
+    border: 1px solid #3d3d3d;
+}
+
+body.dark-theme .page-button:hover {
+    background-color: #3d3d3d;
+}
+
+body.dark-theme .page-button:disabled {
+    background-color: #1a1a1a;
+    color: #666666;
+    border-color: #2d2d2d;
+}
+
+body.dark-theme .page-input:focus,
+body.dark-theme .page-size-select:focus {
+    border-color: #4d4d4d;
+    outline: none;
+}
+
+body.dark-theme .page-info {
+    color: #ffffff;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 暗色主题滚动条 */
+.dark-theme ::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+    background: #666;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+/* WebSocket按钮状态样式 */
+#wsSwitch {
+    transition: all 0.3s ease;
+    background-color: #dfdfdf79;
+    border: 1px solid #ddd;
+    margin: 0 30px;
+}
+
+#wsSwitch.connected {
+    color: #f44336;
+}
+
+#wsSwitch.connected:hover {
+    background-color: #eee;
+}
+
+#wsSwitch.disconnected {
+    color: #4CAF50;
+}
+
+#wsSwitch.disconnected:hover {
+    background-color: #eee;
+}
+
+/* 连接状态样式 */
+#connectionStatus {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#connectionStatus.connected {
+    color: #4CAF50;
+}
+
+#connectionStatus.disconnected {
+    color: #f44336;
+}
+
+/* 夜间模式下的WebSocket按钮样式 */
+body.dark-theme #wsSwitch {
+    background-color: #2d2d2d;
+    border-color: #3d3d3d;
+}
+
+body.dark-theme #wsSwitch.connected {
+    color: #ef5350;
+}
+
+body.dark-theme #wsSwitch.disconnected {
+    color: #66bb6a;
+}
+
+body.dark-theme #wsSwitch:hover {
+    background-color: #3d3d3d;
+}

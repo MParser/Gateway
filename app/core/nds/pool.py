@@ -4,7 +4,6 @@ from typing import Dict, Optional
 from dataclasses import dataclass
 from app.core.nds.client import NDSClient
 from app.core.logger import log
-from app.core.config import config
 from datetime import datetime
 
 
@@ -26,7 +25,7 @@ class PoolConfig:
     port: int
     user: str
     passwd: str
-    pool_size: int = 2 if config.get("nds.pool_size", 2) < 1 else config.get("nds.pool_size", 2)
+    pool_size: int = 2
 
 
 @dataclass
@@ -62,6 +61,7 @@ class NDSPool:
 
         queue = self._pools[server_id]
         conn = None
+        client = None
 
         try:
             # 1. 尝试从队列获取连接
@@ -71,8 +71,9 @@ class NDSPool:
                     await self._close_connection(conn, server_id)
                     conn = None
             except asyncio.QueueEmpty:
+                conn = None
                 pass
-
+            
             # 2. 如果没有可用连接，创建新连接
             if not conn:
                 if queue.qsize() < self._configs[server_id].pool_size:
@@ -94,21 +95,30 @@ class NDSPool:
                         await self._close_connection(conn, server_id)
                         raise NDSError("Failed to get valid connection", server_id)
 
-            yield conn.client
+            # 4. 返回连接
+            client = conn.client
+            yield client
+
+            # 5. 检查连接状态并决定是否放回队列
+            is_valid = False
+            try:
+                is_valid = await client.check_connect()
+            except:
+                is_valid = False
+            
+            if is_valid:
+                try:
+                    await queue.put(conn)
+                except:
+                    await self._close_connection(conn, server_id)
+            else:
+                await self._close_connection(conn, server_id)
 
         except Exception as e:
             if conn:
                 await self._close_connection(conn, server_id)
             log.error(f"[NDS_ID:{server_id}] Error in get_client: {e}")
             raise NDSError(f"Failed to get client: {e}", server_id)
-
-        finally:
-            if conn and conn.client:  # 只有当连接有效时才放回队列
-                try:
-                    await queue.put(conn)
-                except Exception as e:
-                    log.error(f"[NDS_ID:{server_id}] Error releasing connection: {e}")
-                    await self._close_connection(conn, server_id)
 
     @staticmethod
     async def _close_connection(conn: ConnectionInfo, server_id: str) -> None:
@@ -165,13 +175,13 @@ class NDSPool:
         queue = self._pools[server_id]
         config = self._configs[server_id]
         
-        # 检查连接状态
-        is_connected = False
-        try:
-            async with self.get_client(server_id) as client:
-                is_connected = await client.check_connect()
-        except Exception as e:
-            log.error(f"[NDS_ID:{server_id}] Error checking connection: {e}")
+        # # 检查连接状态
+        # is_connected = False
+        # try:
+        #     async with self.get_client(server_id) as client:
+        #         is_connected = await client.check_connect()
+        # except Exception as e:
+        #     log.error(f"[NDS_ID:{server_id}] Error checking connection: {e}")
 
         return {
             "server_id": server_id,
@@ -181,7 +191,7 @@ class NDSPool:
             "max_connections": config.pool_size,
             "available": config.pool_size - queue.qsize(),
             "current_connections": queue.qsize(),
-            "connected": is_connected,
+            # "connected": is_connected,
             "last_used": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         

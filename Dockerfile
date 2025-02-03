@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    build-essential vim \
     && rm -rf /var/lib/apt/lists/*
 
 # 复制整个项目目录

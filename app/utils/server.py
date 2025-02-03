@@ -12,6 +12,7 @@ class GatewayServer:
         self.id = config.get("app.id")
     
     async def register(self):
+        self.id = config.get("app.id")
         response = await self.server.post("gateway/register", json={
             "id": self.id,
             "port": config.get("app.port"),

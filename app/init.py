@@ -11,9 +11,12 @@ from app.core.events import event_manager
 from app.api.deps import response_wrapper
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from app.schemas.response import ResponseModel
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
+from app.utils.system_info import SystemInfo
 
 # 设置应用入口点
 event_manager.set_entry_point(config.get("app.main", "app.main"))
@@ -24,11 +27,15 @@ async def lifespan(_app: FastAPI):
     应用生命周期管理
     处理应用启动和关闭时的事件
     """
-    if len(config.get("app.id")) < 5:
+    if not config.get("app.id") or len(config.get("app.id")) < 5:
+        log.info("首次启动，生成app id")
         app_id = f"{config.get("app.name")}-{uuid.uuid5(uuid.NAMESPACE_DNS, str(uuid.getnode()))}"
         app_id = int(hashlib.sha256(str(app_id).encode()).hexdigest(), 26) % 10**16
         app_id = f"{app_id:016x}"
         config.set("app.id", app_id)
+        log.info(f"生成app id: {app_id}")
+    else:
+        log.info(f"app id: {config.get('app.id')}")
         
     try:
         await event_manager.run_startup(_app)
@@ -41,12 +48,15 @@ app = FastAPI(
     title=config.get("app.name"),
     description=config.get("app.description"),
     version=config.get("app.version"),
-    docs_url="/docs",      # Swagger UI路径
-    redoc_url="/redoc",    # ReDoc路径
+    docs_url=None,      # 禁用默认的 Swagger UI
+    redoc_url=None,    # 禁用默认的 ReDoc
     openapi_url="/openapi.json",  # OpenAPI规范JSON路径
     lifespan=lifespan,
     openapi_tags=[{"name": "日志", "description": "👉[访问日志控制台](/logs)"}],
 )
+
+# 配置静态文件服务
+app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")), name="static")
 
 # 配置CORS
 # noinspection PyTypeChecker
@@ -152,3 +162,23 @@ async def health_check():
 routers = load_routers()
 for router in routers:
     app.include_router(router)
+
+# 自定义 Swagger UI 路由
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=f"{app.title} - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
+    )
+
+# 自定义 ReDoc 路由
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(
+        openapi_url=app.openapi_url,
+        title=f"{app.title} - ReDoc",
+        redoc_js_url="/static/redoc.standalone.js",
+    )
