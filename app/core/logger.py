@@ -1,8 +1,8 @@
 import sys
+import asyncio
 import logging
 from pathlib import Path
 from loguru import logger
-import asyncio
 from app.core.config import config
 
 # 移除默认处理器

@@ -1,6 +1,7 @@
-from typing import Generic, TypeVar, Optional
-from pydantic import BaseModel, Field
 import uuid
+from pydantic import BaseModel, Field
+from typing import Generic, TypeVar, Optional
+
 
 # 定义泛型类型变量
 DataT = TypeVar("DataT")

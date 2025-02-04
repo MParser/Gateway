@@ -1,7 +1,8 @@
-from typing import Callable, List
-from fastapi import FastAPI
 import logging
 import importlib
+from fastapi import FastAPI
+from typing import Callable, List
+
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

@@ -1,8 +1,11 @@
-from typing import Callable
-from app.schemas.response import ResponseModel
-from app.core.errors import *
 import uuid
+from enum import Enum
 from functools import wraps
+from typing import Callable
+from app.core.errors import *
+from pydantic import BaseModel
+from app.schemas.response import ResponseModel
+
 
 def generate_request_id() -> str:
     """生成请求ID"""
@@ -59,3 +62,25 @@ def response_wrapper(func: Callable) -> Callable:
             }
     
     return wrapper
+
+class WSMessageType(str, Enum):
+    RESPONSE = "response"  # 普通响应
+    FILE = "file"         # 文件传输
+    CHECK = "check"       # 连接检查
+    ERROR = "error"       # 错误响应
+
+
+# noinspection PyPep8Naming
+class WS_RESPONSE(BaseModel):
+    type: WSMessageType = WSMessageType.RESPONSE
+    code: int = 200
+    from_api: Optional[str] = None
+    nds_id: Optional[str] = None
+    message: Optional[str] = None
+    data: Optional[Any] = None
+    request_id: Optional[str] = None
+
+class ScanRequest(BaseModel):
+    id: str
+    path: str
+    filter: Optional[str] = None

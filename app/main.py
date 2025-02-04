@@ -5,6 +5,8 @@ from app.utils.server import GatewayServer
 
 server = GatewayServer()
 
+
+# noinspection PyUnusedLocal
 @event_manager.on_startup
 async def startup_event(app: FastAPI):
     """
@@ -21,7 +23,7 @@ async def startup_event(app: FastAPI):
     log.info("Event service started")
     return
 
-
+# noinspection PyUnusedLocal
 @event_manager.on_shutdown
 async def shutdown_event(app: FastAPI):
     """

@@ -1,18 +1,15 @@
-
-import json
 import os
-from collections import deque
-from datetime import datetime
+import json
 from pathlib import Path
 from typing import Dict, Any
-
-from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+from collections import deque
+from datetime import datetime
 from fastapi import HTTPException
+from app.core.config import config
 from fastapi.responses import FileResponse
 from starlette.websockets import WebSocketState
-
-from app.core.config import config
 from app.core.logger import logger, get_log_files
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
 api_router = APIRouter(prefix="/logs", tags=["日志接口"])  # 移除默认前缀
 

@@ -12,9 +12,8 @@ class GatewayServer:
         self.id = config.get("app.id")
     
     async def register(self):
-        self.id = config.get("app.id")
         response = await self.server.post("gateway/register", json={
-            "id": self.id,
+            "id": config.get("app.id"),
             "port": config.get("app.port"),
         })
         if response.get("code") == 200:
@@ -23,14 +22,14 @@ class GatewayServer:
             raise Exception(f"网关注册失败: {json.dumps(response, ensure_ascii=False)}")
         
     async def unregister(self):
-        response = await self.server.put(f"gateway/{self.id}", json={ "status": 0 })
+        response = await self.server.put(f"gateway/{config.get('app.id')}", json={ "status": 0 })
         if response.get("code") == 200:
             return response.get("data")
         else:
             raise Exception(f"网关注销失败: {json.dumps(response, ensure_ascii=False)}")
         
     async def nds_list(self):
-        response = await self.server.get(f"/gateway/{self.id}")
+        response = await self.server.get(f"/gateway/{config.get('app.id')}")
         print(f"获取到NDS列表: {json.dumps(response, ensure_ascii=False)}")
         if response.get("code") == 200:
             return response.get("data").get("ndsLinks", [])

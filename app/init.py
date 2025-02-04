@@ -7,16 +7,17 @@ from typing import Dict, Any
 from app.core.logger import log
 from app.core.config import config
 from app.core.errors import AppError
-from app.core.events import event_manager
 from app.api.deps import response_wrapper
-from fastapi.responses import JSONResponse
+from app.core.events import event_manager
 from contextlib import asynccontextmanager
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from app.utils.system_info import SystemInfo
 from app.schemas.response import ResponseModel
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.utils.system_info import SystemInfo
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+
 
 # 设置应用入口点
 event_manager.set_entry_point(config.get("app.main", "app.main"))
@@ -93,7 +94,7 @@ def load_routers():
     - app/api/logs.py 的路由前缀为 /logs
     - app/api/v2/test/demo.py 的路由前缀为 /v2/test
     """
-    routers = []
+    api_routers = []
     api_dir = Path(__file__).parent / "api"
     
     # 递归处理所有Python文件
@@ -109,19 +110,19 @@ def load_routers():
             # 动态导入模块
             module = importlib.import_module(module_path)
             if hasattr(module, "api_router"):
-                router = APIRouter()
+                api_router = APIRouter()
                 # 如果不是直接位于api目录下，添加目录前缀
                 dir_prefix = "" if api_file.parent == api_dir else "/" + str(rel_path.parent).replace(os.sep, "/")
-                router.include_router(module.api_router, prefix=dir_prefix)
-                routers.append(router)
+                api_router.include_router(module.api_router, prefix=dir_prefix)
+                api_routers.append(api_router)
                 
                 # 获取完整的路由地址
                 module_prefix = getattr(module.api_router, "prefix", "")
                 log.info(f"成功加载路由模块: {module_path}，路由地址: {dir_prefix}{module_prefix}")
         except Exception as e:
-            log.error(f"加载路由模块失败 {module_path}: {str(e)}")
+            log.error(f"加载路由模块失败: {str(e)}")
     
-    return routers
+    return api_routers
 
 
 @app.get("/", response_model=ResponseModel[Dict[str, Any]], summary="程序信息")
@@ -167,9 +168,9 @@ for router in routers:
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
-        title=f"{app.title} - Swagger UI",
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        openapi_url="/openapi.json",
+        title=f"{config.get('app.name')} - Swagger UI",
+        # oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         swagger_js_url="/static/swagger-ui-bundle.js",
         swagger_css_url="/static/swagger-ui.css",
     )
@@ -178,7 +179,7 @@ async def custom_swagger_ui_html():
 @app.get("/redoc", include_in_schema=False)
 async def redoc_html():
     return get_redoc_html(
-        openapi_url=app.openapi_url,
-        title=f"{app.title} - ReDoc",
+        openapi_url="/openapi.json",
+        title=f"{config.get('app.name')} - ReDoc",
         redoc_js_url="/static/redoc.standalone.js",
     )
