@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any, Union
 @dataclass
 class HttpConfig:
     """HTTP客户端配置"""
-    timeout: int = 3600  # 默认超时时间1小时
+    timeout: httpx.Timeout = httpx.Timeout(timeout=3600)  # 默认超时时间1小时
 
 class HttpClient:
     """HTTP客户端封装"""
