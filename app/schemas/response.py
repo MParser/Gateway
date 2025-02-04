@@ -67,10 +67,6 @@ class ResponseModel(BaseModel, Generic[DataT]):
             }]
         }
         
-    @classmethod
-    def model_name_handler(cls) -> str:
-        """自定义模型名称"""
-        return "统一响应模型"
 
 # 预定义常用响应类型
 ResponseDict = ResponseModel[Dict[str, Any]]

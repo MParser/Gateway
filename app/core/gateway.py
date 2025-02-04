@@ -30,7 +30,7 @@ async def start():
                     passwd=nds.get("Password"),
                     pool_size=nds.get("PoolSize"),
                 )
-                nds_id = nds.get("id")
+                nds_id = str(nds.get("id"))
                 nds_pool.add_server(nds_id, config)
         return "启动完成"
     except Exception as e:
