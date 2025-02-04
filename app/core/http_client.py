@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any, Union
 @dataclass
 class HttpConfig:
     """HTTP客户端配置"""
-    timeout: httpx.Timeout = httpx.Timeout(timeout=3600)  # 默认超时时间1小时
+    timeout: int = 3600  # 默认超时时间1小时
 
 class HttpClient:
     """HTTP客户端封装"""
@@ -26,7 +26,7 @@ class HttpClient:
         """确保client已创建"""
         if self._client is None:
             self._client = httpx.AsyncClient(
-                timeout=self.config.timeout,
+                timeout=httpx.Timeout(self.config.timeout),
                 verify=False  # 如果需要禁用SSL验证
             )
 
