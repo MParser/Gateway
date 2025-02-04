@@ -10,7 +10,7 @@ from app.core.errors import AppError
 from app.api.deps import response_wrapper
 from app.core.events import event_manager
 from contextlib import asynccontextmanager
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from app.utils.system_info import SystemInfo
 from app.schemas.response import ResponseModel
@@ -170,10 +170,13 @@ for router in routers:
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     """自定义Swagger UI页面"""
-    from fastapi.responses import HTMLResponse
-    with open(Path(__file__).parent / "static" / "swagger-ui.html", "r", encoding="utf-8") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=f"{config.get('app.name')} - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
+    )
 
 # 自定义 ReDoc 路由
 @app.get("/redoc", include_in_schema=False)
