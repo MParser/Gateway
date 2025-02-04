@@ -8,22 +8,22 @@ from app.core.gateway import start, stop, status, restart, handle_websocket_mess
 api_router = APIRouter(tags=["Gateway API"])
 
 # Control endpoints
-@api_router.get("/control/start")
+@api_router.get("/control/start", summary="启动网关服务")
 @response_wrapper
 async def start_service():
     return await start()
 
-@api_router.get("/control/stop")
+@api_router.get("/control/stop", summary="停止网关服务")
 @response_wrapper
 async def stop_service():
     return await stop()
 
-@api_router.get("/control/status")
+@api_router.get("/control/status", summary="获取网关状态")
 @response_wrapper
 async def status_service():
     return await status()
 
-@api_router.get("/control/restart")
+@api_router.get("/control/restart", summary="重启网关服务")
 @response_wrapper
 async def restart_service():
     return await restart()
