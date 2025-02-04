@@ -3,7 +3,7 @@ import asyncio
 import time
 from fastapi import WebSocket
 from app.core.logger import log
-from app.api.v1.models.ws_models import WS_RESPONSE, WSMessageType
+from app.api.deps import WS_RESPONSE, WSMessageType
 
 
 # noinspection PyBroadException

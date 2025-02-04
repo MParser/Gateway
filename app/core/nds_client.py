@@ -449,13 +449,14 @@ class NDSClient:
         if cd_end_size + cd_end_l64_size < self.stream_info['size']:
             await self.seek(-cd_end_size - cd_end_l64_size, 2)
             tmp_data = await self.read(cd_end_l64_size)
-            if len(tmp_data) == ZIP64_LOCATOR:
+            if len(tmp_data) == cd_end_l64_size:
                 sig, disk_no, _rel_off, disks = struct.unpack(ZIP64_LOCATOR_RECORD, tmp_data)
                 if sig == ZIP64_LOCATOR:
                     if disk_no != 0 or disks > 1:
                         raise Exception("ZIP Files that span multiple disks are not supported")
                     # Assume no 'zip64 extensible data'
                     await self.seek(-cd_end_64_size - cd_end_l64_size - cd_end_64_size, 2)
+                    tmp_data = await self.read(cd_end_64_size)
                     if len(tmp_data) == cd_end_64_size:
                         sig, _sz, _create_version, _read_version, disk_num, disk_dir, \
                             dir_count, dir_count2, dir_size, dir_offset = \

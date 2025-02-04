@@ -34,6 +34,7 @@ class ConnectionInfo:
     client: Optional[NDSClient]
 
 
+# noinspection PyBroadException
 class NDSPool:
     """NDS连接池管理器"""
 
@@ -61,7 +62,6 @@ class NDSPool:
 
         queue = self._pools[server_id]
         conn = None
-        client = None
 
         try:
             # 1. 尝试从队列获取连接
@@ -100,7 +100,6 @@ class NDSPool:
             yield client
 
             # 5. 检查连接状态并决定是否放回队列
-            is_valid = False
             try:
                 is_valid = await client.check_connect()
             except:

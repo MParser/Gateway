@@ -1,9 +1,10 @@
 from typing import Dict, Optional, Any
-from app.api.v1.models.ws_models import WS_RESPONSE, WSMessageType
+from app.api.deps import WS_RESPONSE, WSMessageType
 from app.api.v1.services.ws_manager import ConnectionManager
 from app.core.logger import log
 from app.core.nds.pool import NDSPool, PoolConfig
 from app.utils.server import GatewayServer
+
 
 # 全局实例
 nds_pool = NDSPool()
