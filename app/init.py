@@ -57,7 +57,9 @@ app = FastAPI(
 )
 
 # 配置静态文件服务
-app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")), name="static")
+static_path = str(Path(__file__).parent / "static")
+log.info(f"静态文件目录: {static_path}")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 # 配置CORS
 # noinspection PyTypeChecker
@@ -167,10 +169,11 @@ for router in routers:
 # 自定义 Swagger UI 路由
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
+    """自定义Swagger UI页面"""
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url=app.openapi_url,
         title=f"{config.get('app.name')} - Swagger UI",
-        # oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         swagger_js_url="/static/swagger-ui-bundle.js",
         swagger_css_url="/static/swagger-ui.css",
     )
@@ -178,8 +181,9 @@ async def custom_swagger_ui_html():
 # 自定义 ReDoc 路由
 @app.get("/redoc", include_in_schema=False)
 async def redoc_html():
+    """自定义ReDoc页面"""
     return get_redoc_html(
-        openapi_url="/openapi.json",
+        openapi_url=app.openapi_url,
         title=f"{config.get('app.name')} - ReDoc",
         redoc_js_url="/static/redoc.standalone.js",
     )
