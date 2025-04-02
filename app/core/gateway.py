@@ -79,8 +79,11 @@ async def handle_read(nds_id: str, path: str, header_offset: int, size: int,
 
     try:
         nds_id = str(nds_id)  # 确保 nds_id 是字符串类型
+        log.info(f"read file{path} header_offset: {header_offset}, size:{size}")
         async with nds_pool.get_client(nds_id) as client:
+            log.info("Get NDS")
             if data := await client.read_file_bytes(path, header_offset, size):
+                log.info("Get Data")
                 if await ws_manage.send_file(client_id, data, response.request_id):
                     response.message = "success"
                     response.data = {

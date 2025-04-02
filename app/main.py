@@ -16,6 +16,7 @@ async def startup_event(app: FastAPI):
     #  注册Gateway节点
     try:
         # 发送注册请求
+        log.info("正在注册网关节点...")
         response = await server.register()
         log.info(f"Gateway注册成功: {response.get('id')} - {response.get('name')}")
     except Exception as e:

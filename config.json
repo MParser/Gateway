@@ -2,8 +2,8 @@
     "CONFIG_OVERRIDE": true,
     "server": {
         "protocol": "http",
-        "host": "192.127.121.30",
-        "port": 1902,
+        "host": "127.0.0.1",
+        "port": 9002,
         "timeout": 3600
     },
     "app": {

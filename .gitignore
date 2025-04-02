@@ -51,3 +51,4 @@ config.local.json
 *.local.*
 .hintrc
 /*.tar
+config.json

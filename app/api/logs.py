@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 from collections import deque
+import asyncio
 from datetime import datetime
 from fastapi import HTTPException
 from app.core.config import config
@@ -17,6 +18,10 @@ api_router = APIRouter(prefix="/logs", tags=["日志接口"])  # 移除默认前
 log_queue = deque(maxlen=1000)
 # 活跃的WebSocket连接集合
 active_connections = []
+# 添加锁来保护共享资源
+connection_lock = asyncio.Lock()
+# 添加锁来保护日志队列
+log_queue_lock = asyncio.Lock()
 static_dir = Path(__file__).parent.parent / "static"
 def format_file_size(size_in_bytes):
     """格式化文件大小
@@ -139,11 +144,19 @@ async def get_log_content(
 async def websocket_logs(websocket: WebSocket):
     """处理WebSocket连接，用于实时推送日志"""
     await websocket.accept()
-    active_connections.append(websocket)
+    
+    # 使用锁保护添加连接的操作
+    async with connection_lock:
+        active_connections.append(websocket)
     
     try:
-        # 发送现有的日志队列
-        for log in log_queue:
+        # 发送现有的日志队列 - 使用锁保护读取操作
+        async with log_queue_lock:
+            # 创建日志队列的副本进行迭代
+            logs_to_send = list(log_queue)
+            
+        # 在锁外发送日志
+        for log in logs_to_send:
             try:
                 await websocket.send_json(log)
             except Exception:
@@ -156,12 +169,14 @@ async def websocket_logs(websocket: WebSocket):
                 await websocket.send_text("heartbeat")
     except WebSocketDisconnect:
         # 安全地移除连接
-        if websocket in active_connections:
-            active_connections.remove(websocket)
+        async with connection_lock:
+            if websocket in active_connections:
+                active_connections.remove(websocket)
     except Exception as e:
         logger.error(f"WebSocket错误: {str(e)}")
-        if websocket in active_connections:
-            active_connections.remove(websocket)
+        async with connection_lock:
+            if websocket in active_connections:
+                active_connections.remove(websocket)
 
 
 # noinspection PyBroadException
@@ -171,11 +186,16 @@ async def broadcast_log(log: Dict[str, Any]):
     Args:
         log: 日志消息字典，包含level和message等信息
     """
-    # 将日志添加到队列
-    log_queue.append(log)
+    # 将日志添加到队列 - 使用锁保护写入操作
+    async with log_queue_lock:
+        log_queue.append(log)
+    
+    # 创建一个连接列表的副本，避免在迭代过程中修改原列表
+    async with connection_lock:
+        connections = list(active_connections)
     
     # 广播到所有连接的客户端
-    for connection in active_connections.copy():
+    for connection in connections:
         try:
             if connection.client_state == WebSocketState.CONNECTED:
                 await connection.send_json(log)
@@ -184,4 +204,7 @@ async def broadcast_log(log: Dict[str, Any]):
                 await connection.close()
             except:
                 pass
-            active_connections.remove(connection)
+            # 安全地移除连接
+            async with connection_lock:
+                if connection in active_connections:
+                    active_connections.remove(connection)

@@ -43,6 +43,10 @@ async def nds_control(websocket: WebSocket, client_id: str):
 
                 # Handle message
                 try:
+                    # 检查是否为check，如果是则跳过，无需返回任何信息
+                    if message.get("api", "") == "check_connection":
+                        continue
+
                     response = await handle_websocket_message(client_id, message)
                     if not isinstance(response, WS_RESPONSE):
                         log.error(f"Invalid response object[{client_id}]: {response}")
