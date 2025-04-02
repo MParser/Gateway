@@ -500,6 +500,7 @@ class NDSClient:
             info.sub_file_name = info.sub_file_name.decode('utf-8') if flags & 2048 else info.sub_file_name.decode(
                 'cp437')
             # _CD_LOCAL_HEADER_OFFSET 文件开始位置，需要加上文件头尺寸
+            info.file_path = self.stream_info['file_path']
             info.header_offset = centdir[18] + self.stream_info['header_size']
             info.compress_size = centdir[10]
             info.file_size = centdir[11]
