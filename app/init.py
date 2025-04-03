@@ -81,7 +81,7 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
         status_code=200,  # 统一使用200状态码，通过code字段区分错误
         content=ResponseModel(
             code=exc.error_code,
-            msg=exc.error_msg,
+            message=exc.error_msg,
             data=exc.error_detail
         ).model_dump()
     )
